@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains image_resize.module.
+ */
+
 function image_resize_permission() {
   return array(
     'administer image resize module' => array(
@@ -15,7 +20,7 @@ function image_resize_menu() {
   $items = array();
 
   $items['admin/config/media/image-resize/settings'] = array(
-    'title' => t('Image resize settings'),
+    'title' => 'Image resize settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('image_resize_admin_form'),
     'access arguments' => array('administer image resize module'),
@@ -23,7 +28,7 @@ function image_resize_menu() {
   );
 
   $items['admin/config/media/image-resize'] = array(
-    'title' => t('Image resize'),
+    'title' => 'Image resize',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('image_resize_form'),
     'access arguments' => array('access image resize module'),
@@ -33,6 +38,9 @@ function image_resize_menu() {
   return $items;
 }
 
+/**
+ * Module settings form.
+ */
 function image_resize_admin_form() {
   $form = array();
 
@@ -49,7 +57,11 @@ function image_resize_admin_form() {
     '#type' => 'checkboxes',
     '#title' => t('Image formats'),
     '#options' => array('jpg' => t('jpg, jpeg'), 'png' => t('png'), 'gif' => t('gif')),
-    '#default_value' => variable_get('image_resize_formats', array('jpg', 'png', 'gif')),
+    '#default_value' => variable_get('image_resize_formats', array(
+      'jpg',
+      'png',
+      'gif')
+    ),
     '#size' => 60,
     '#required' => TRUE,
     '#description' => t('Select image formats that you want to resize.'),
@@ -110,15 +122,18 @@ function image_resize_admin_form() {
   return system_settings_form($form);
 }
 
+/**
+ * Implements hook_form().
+ */
 function image_resize_form($form, &$form_state) {
   $form = array();
 
   $form['markup'] = array(
     '#type' => 'markup',
-    '#markup' => t('Min. PHP version for this module to work is 5.5.0. ') . '<br>' .
-      t('Before resizing, make sure your images have correct rigths (files should be writable).') . '<br>' .
-      '<a href="/admin/config/media/image-resize/settings">Module settings</a>' .
-      '<br><br>',
+    '#markup' => t('Min. PHP version for this module to work is 5.5.0.') . '<br>' .
+    t('Before resizing, make sure your images have correct rigths (files should be writable).') . '<br>' .
+    '<a href="/admin/config/media/image-resize/settings">Module settings</a>' .
+    '<br><br>',
   );
 
   $form['submit'] = array(
@@ -129,6 +144,9 @@ function image_resize_form($form, &$form_state) {
   return $form;
 }
 
+/**
+ * Resize form submit handler.
+ */
 function image_resize_form_submit($form, &$form_state) {
   $batch = array(
     'operations' => array(),
@@ -154,6 +172,9 @@ function image_resize_form_submit($form, &$form_state) {
   drupal_set_message(t('Resizing images has been completed'));
 }
 
+/**
+ * Get image file paths.
+ */
 function image_resize_get_images_paths() {
   $paths = array();
   $dir_path = variable_get('image_resize_dir_path');
@@ -166,7 +187,7 @@ function image_resize_get_images_paths() {
   $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir_path), RecursiveIteratorIterator::SELF_FIRST);
   $image_formats = array_flip($image_formats);
 
-  foreach($files as $file) {
+  foreach ($files as $file) {
     if ($file->isFile()) {
       if ($file_size > 0 && ($file->getSize() < ($file_size * 1024))) {
         continue;
@@ -195,65 +216,70 @@ function image_resize_get_images_paths() {
   return $paths;
 }
 
+/**
+ * Resize images.
+ */
 function image_resize_image($image_paths) {
-  foreach($image_paths as $image_path) {
-  $dimension_type = variable_get('image_resize_type');
-  $dimension = variable_get('image_resize_dimension');
-  list($original_width, $original_height) = getimagesize($image_path);
-  $ratio = $original_width/$original_height;
-  $quality = variable_get('image_resize_quality');
+  foreach ($image_paths as $image_path) {
+    $dimension_type = variable_get('image_resize_type');
+    $dimension = variable_get('image_resize_dimension');
+    list($original_width, $original_height) = getimagesize($image_path);
+    $ratio = $original_width/$original_height;
+    $quality = variable_get('image_resize_quality');
 
-  if ($dimension_type == 'height') {
-    $height = $dimension;
-    $widht = $height*$ratio;
-  }
-  else {
-    $widht = $dimension;
-    $height = $widht/$ratio;
-  }
-
-  $image_ext = pathinfo($image_path, PATHINFO_EXTENSION);
-  switch ($image_ext){
-    case 'jpg':
-    case 'jpeg':
-      try {
-        $image = imagecreatefromjpeg($image_path);
-        $scaled = imagescale($image, $widht, $height);
-        if ($scaled) {
-          imagejpeg($scaled, $image_path, $quality);
-          imagedestroy($image);
-        }
-      }
-      catch (Exception $e) {
-        drupal_set_message(t('Error: @error', array('@error' => $e->getMessage())), 'error');
-      }
-      break;
-    case 'png':
-      try {
-        $image = imagecreatefrompng($image_path);
-        $scaled = imagescale($image, $widht, $height);
-        if ($scaled) {
-          imagepng($scaled, $image_path);
-          imagedestroy($image);
-        }
-      }
-      catch (Exception $e) {
-        drupal_set_message(t('Error: @error', array('@error' => $e->getMessage())), 'error');
-      }
-      break;
-    case 'gif':
-      try {
-        $image = imagecreatefromgif($image_path);
-        $scaled = imagescale($image, $widht, $height);
-        if ($scaled) {
-          imagegif($scaled, $image_path);
-          imagedestroy($image);
-        }
-      }
-      catch (Exception $e) {
-        drupal_set_message(t('Error: @error', array('@error' => $e->getMessage())), 'error');
-      }
-      break;
+    if ($dimension_type == 'height') {
+      $height = $dimension;
+      $widht = $height*$ratio;
     }
+    else {
+      $widht = $dimension;
+      $height = $widht/$ratio;
+    }
+
+    $image_ext = pathinfo($image_path, PATHINFO_EXTENSION);
+    switch ($image_ext) {
+      case 'jpg':
+      case 'jpeg':
+        try {
+          $image = imagecreatefromjpeg($image_path);
+          $scaled = imagescale($image, $widht, $height);
+          if ($scaled) {
+            imagejpeg($scaled, $image_path, $quality);
+            imagedestroy($image);
+          }
+        }
+        catch (Exception $e) {
+          drupal_set_message(t('Error: @error', array('@error' => $e->getMessage())), 'error');
+        }
+      break;
+
+      case 'png':
+        try {
+          $image = imagecreatefrompng($image_path);
+          $scaled = imagescale($image, $widht, $height);
+          if ($scaled) {
+            imagepng($scaled, $image_path);
+            imagedestroy($image);
+          }
+        }
+        catch (Exception $e) {
+          drupal_set_message(t('Error: @error', array('@error' => $e->getMessage())), 'error');
+        }
+      break;
+
+      case 'gif':
+        try {
+          $image = imagecreatefromgif($image_path);
+          $scaled = imagescale($image, $widht, $height);
+          if ($scaled) {
+            imagegif($scaled, $image_path);
+            imagedestroy($image);
+          }
+        }
+        catch (Exception $e) {
+          drupal_set_message(t('Error: @error', array('@error' => $e->getMessage())), 'error');
+        }
+      break;
+  }
   }
 }
