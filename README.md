@@ -11,9 +11,10 @@
 ##INTRODUCTION
 
 Before downloading and using this module please read the next lines carefully.
-This module has a very specific use case. You shoud not use it to resize images
-that are managed by Drupal. If your content type has an image field, then images
-you upload to the nodes of this type are most likely managed by Drupal.
+This module has a very specific use case. You should not use it to resize images
+that are managed by Drupal. If your content type or taxonomy vocabulary has an
+image field, then images you upload to the nodes or terms of this type are most
+likely managed by Drupal.
 
 Use this module if your images are not managed by Drupal. Lets say that for some
 reason you are loading images directly in templates, based on some file path
