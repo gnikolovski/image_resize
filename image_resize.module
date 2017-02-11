@@ -103,8 +103,8 @@ function image_resize_admin_form() {
     '#size' => 6,
     '#maxlength' => 5,
     '#required' => TRUE,
-		'#element_validate' => array('element_validate_integer_positive'),
-		'#description' => t('Images with the file size below this value will not be resized.'),
+		'#element_validate' => array('element_validate_integer'),
+		'#description' => t('Images with the file size below this value will not be resized. Enter 0 to skip file size check.'),
   );
 
   return system_settings_form($form);
@@ -168,7 +168,7 @@ function image_resize_get_images_paths() {
 
   foreach($files as $file) {
     if ($file->isFile()) {
-			if ($file->getSize() < ($file_size * 1024)) {
+			if ($file_size > 0 && ($file->getSize() < ($file_size * 1024))) {
         continue;
       }
       $file_path = $file->getRealpath();
