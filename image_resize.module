@@ -5,6 +5,9 @@
  * Contains image_resize.module.
  */
 
+ /**
+  * Implements hook_permission.
+  */
 function image_resize_permission() {
   return array(
     'administer image resize module' => array(
@@ -16,6 +19,9 @@ function image_resize_permission() {
   );
 }
 
+/**
+ * Implements hook_menu.
+ */
 function image_resize_menu() {
   $items = array();
 
@@ -56,12 +62,16 @@ function image_resize_admin_form() {
   $form['image_resize_formats'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Image formats'),
-    '#options' => array('jpg' => t('jpg, jpeg'), 'png' => t('png'), 'gif' => t('gif')),
+    '#options' => array(
+      'jpg' => t('jpg, jpeg'),
+      'png' => t('png'),
+      'gif' => t('gif')
+    ),
     '#default_value' => variable_get('image_resize_formats', array(
       'jpg',
       'png',
-      'gif')
-    ),
+      'gif'
+    )),
     '#size' => 60,
     '#required' => TRUE,
     '#description' => t('Select image formats that you want to resize.'),
@@ -224,16 +234,16 @@ function image_resize_image($image_paths) {
     $dimension_type = variable_get('image_resize_type');
     $dimension = variable_get('image_resize_dimension');
     list($original_width, $original_height) = getimagesize($image_path);
-    $ratio = $original_width/$original_height;
+    $ratio = $original_width / $original_height;
     $quality = variable_get('image_resize_quality');
 
     if ($dimension_type == 'height') {
       $height = $dimension;
-      $widht = $height*$ratio;
+      $widht = $height * $ratio;
     }
     else {
       $widht = $dimension;
-      $height = $widht/$ratio;
+      $height = $widht / $ratio;
     }
 
     $image_ext = pathinfo($image_path, PATHINFO_EXTENSION);
@@ -251,7 +261,7 @@ function image_resize_image($image_paths) {
         catch (Exception $e) {
           drupal_set_message(t('Error: @error', array('@error' => $e->getMessage())), 'error');
         }
-      break;
+        break;
 
       case 'png':
         try {
@@ -265,7 +275,7 @@ function image_resize_image($image_paths) {
         catch (Exception $e) {
           drupal_set_message(t('Error: @error', array('@error' => $e->getMessage())), 'error');
         }
-      break;
+        break;
 
       case 'gif':
         try {
@@ -279,7 +289,7 @@ function image_resize_image($image_paths) {
         catch (Exception $e) {
           drupal_set_message(t('Error: @error', array('@error' => $e->getMessage())), 'error');
         }
-      break;
-  }
+        break;
+    }
   }
 }
