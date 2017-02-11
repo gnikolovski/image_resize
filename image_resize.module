@@ -1,0 +1,256 @@
+<?php
+
+function image_resize_permission() {
+  return array(
+    'administer image resize module' => array(
+      'title' => t('Administer image resize module'),
+    ),
+    'access image resize module' => array(
+      'title' => t('Access image resize module'),
+    ),
+  );
+}
+
+function image_resize_menu() {
+	$items = array();
+
+	$items['admin/config/media/image-resize/settings'] = array(
+		'title' => t('Image resize settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('image_resize_admin_form'),
+    'access arguments' => array('administer image resize module'),
+		'type' => MENU_NORMAL_ITEM,
+	);
+
+  $items['admin/config/media/image-resize'] = array(
+		'title' => t('Image resize'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('image_resize_form'),
+    'access arguments' => array('access image resize module'),
+		'type' => MENU_NORMAL_ITEM,
+	);
+
+	return $items;
+}
+
+function image_resize_admin_form() {
+  $form = array();
+
+  $form['image_resize_dir_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Directory path'),
+    '#default_value' => variable_get('image_resize_dir_path', 'public://'),
+    '#size' => 60,
+    '#required' => TRUE,
+		'#description' => t('Enter internal path to your images directory (e.g. public://images).'),
+  );
+
+  $form['image_resize_formats'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Image formats'),
+    '#options' => array('jpg' => t('jpg, jpeg'), 'png' => t('png'), 'gif' => t('gif')),
+    '#default_value' => variable_get('image_resize_formats', array('jpg', 'png', 'gif')),
+    '#size' => 60,
+    '#required' => TRUE,
+		'#description' => t('Select image formats that you want to resize.'),
+  );
+
+  $form['image_resize_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Dimension'),
+    '#options' => array('width' => t('Width'), 'height' => t('Height')),
+    '#default_value' => variable_get('image_resize_type', 'width'),
+		'#description' => t('Select image dimension.'),
+  );
+
+  $form['image_resize_dimension'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Resize selected dimension to (px)'),
+    '#default_value' => variable_get('image_resize_dimension', 500),
+    '#size' => 6,
+    '#maxlength' => 5,
+    '#required' => TRUE,
+		'#element_validate' => array('element_validate_integer_positive'),
+    '#description' => t('Other dimension will be calculated to preserve aspect ratio.'),
+  );
+
+  $form['image_resize_quality'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Image quality (%)'),
+    '#default_value' => variable_get('image_resize_quality', 90),
+    '#size' => 6,
+    '#maxlength' => 5,
+    '#required' => TRUE,
+		'#element_validate' => array('element_validate_integer_positive'),
+		'#description' => t('Only for jpg image format.'),
+  );
+
+	$form['image_resize_batch_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Batch size'),
+    '#default_value' => variable_get('image_resize_batch_size', 5),
+    '#size' => 6,
+    '#maxlength' => 5,
+    '#required' => TRUE,
+		'#element_validate' => array('element_validate_integer_positive'),
+		'#description' => t('Enter how many images you want to process in one batch request.'),
+  );
+
+	$form['image_resize_file_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Min. file size (KB)'),
+    '#default_value' => variable_get('image_resize_file_size', 600),
+    '#size' => 6,
+    '#maxlength' => 5,
+    '#required' => TRUE,
+		'#element_validate' => array('element_validate_integer_positive'),
+		'#description' => t('Images with the file size below this value will not be resized.'),
+  );
+
+  return system_settings_form($form);
+}
+
+function image_resize_form($form, &$form_state) {
+  $form = array();
+
+  $form['markup'] = array(
+    '#type' => 'markup',
+    '#markup' => t('Min. PHP version for this module to work is 5.5.0. ') . '<br>' .
+      t('Before resizing, make sure your images have correct rigths (files should be writable).') . '<br>' .
+      '<a href="/admin/config/media/image-resize/settings">Module settings</a>' .
+      '<br><br>',
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Start resizing'),
+  );
+
+  return $form;
+}
+
+function image_resize_form_submit($form, &$form_state) {
+	$batch = array(
+    'operations' => array(),
+    'title' => t('Resize images'),
+    'init_message' => t('Preparing...'),
+    'progress_message' => t('Resizing batch @current of @total'),
+    'error_message' => t('Error while resizing'),
+  );
+
+	$batch_size = variable_get('image_resize_batch_size');
+  $image_paths = array_chunk(image_resize_get_images_paths(), $batch_size);
+
+  if (!$image_paths) {
+    drupal_set_message(t('No images to resize.'), 'warning');
+    return FALSE;
+  }
+
+	foreach ($image_paths as $image_path) {
+		$batch['operations'][] = array('image_resize_image', array($image_path));
+	}
+
+  batch_set($batch);
+  drupal_set_message(t('Resizing images has been completed'));
+}
+
+function image_resize_get_images_paths() {
+  $paths = array();
+  $dir_path = variable_get('image_resize_dir_path');
+  $image_formats = variable_get('image_resize_formats');
+	$file_size = variable_get('image_resize_file_size');
+	$dir_path = drupal_realpath($dir_path);
+  if (!file_exists($dir_path)) {
+    return $paths;
+  }
+  $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir_path), RecursiveIteratorIterator::SELF_FIRST);
+  $image_formats = array_flip($image_formats);
+
+  foreach($files as $file) {
+    if ($file->isFile()) {
+			if ($file->getSize() < ($file_size * 1024)) {
+        continue;
+      }
+      $file_path = $file->getRealpath();
+      $file_ext = pathinfo($file_path, PATHINFO_EXTENSION);
+      if (!isset($image_formats[$file_ext])) {
+        continue;
+      }
+      list($original_width, $original_height) = getimagesize($file_path);
+      $dimension_type = variable_get('image_resize_type');
+      $dimension = variable_get('image_resize_dimension');
+      if ($dimension_type == 'width') {
+        if ($dimension < $original_width) {
+          $paths[] = $file_path;
+        }
+      }
+      else {
+        if ($dimension < $original_height) {
+          $paths[] = $file_path;
+        }
+      }
+    }
+  }
+
+  return $paths;
+}
+
+function image_resize_image($image_paths) {
+	foreach($image_paths as $image_path) {
+		$dimension_type = variable_get('image_resize_type');
+		$dimension = variable_get('image_resize_dimension');
+		list($original_width, $original_height) = getimagesize($image_path);
+		$ratio = $original_width/$original_height;
+		$quality = variable_get('image_resize_quality');
+
+		if ($dimension_type == 'height') {
+			$height = $dimension;
+			$widht = $height*$ratio;
+		}
+		else {
+			$widht = $dimension;
+			$height = $widht/$ratio;
+		}
+
+		$image_ext = pathinfo($image_path, PATHINFO_EXTENSION);
+		switch ($image_ext){
+			case 'jpg':
+			case 'jpeg':
+				try {
+					$image = imagecreatefromjpeg($image_path);
+					$scaled = imagescale($image, $widht, $height);
+					if ($scaled) {
+						imagejpeg($scaled, $image_path, $quality);
+						imagedestroy($image);
+					}
+				} catch (Exception $e) {
+					drupal_set_message(t('Error: @error', array('@error' => $e->getMessage())), 'error');
+				}
+				break;
+			case 'png':
+				try {
+					$image = imagecreatefrompng($image_path);
+					$scaled = imagescale($image, $widht, $height);
+					if ($scaled) {
+						imagepng($scaled, $image_path);
+						imagedestroy($image);
+					}
+				} catch (Exception $e) {
+          drupal_set_message(t('Error: @error', array('@error' => $e->getMessage())), 'error');
+				}
+				break;
+			case 'gif':
+				try {
+					$image = imagecreatefromgif($image_path);
+					$scaled = imagescale($image, $widht, $height);
+					if ($scaled) {
+						imagegif($scaled, $image_path);
+						imagedestroy($image);
+					}
+				} catch (Exception $e) {
+          drupal_set_message(t('Error: @error', array('@error' => $e->getMessage())), 'error');
+				}
+				break;
+		}
+	}
+}
