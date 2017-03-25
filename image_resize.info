@@ -1,5 +1,5 @@
 name = Image resize
-description = Resize images that are not managed by Drupal.
+description = "Resize images that are not managed by Drupal."
 core = 7.x
 package = Media
 configure = admin/config/media/image-resize

@@ -7,6 +7,8 @@
 
 /**
  * Implements hook_uninstall().
+ *
+ * Remove variables that the module has set.
  */
 function image_resize_uninstall() {
   variable_del('image_resize_dir_path');
