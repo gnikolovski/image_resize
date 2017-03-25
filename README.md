@@ -1,6 +1,6 @@
-#Image resize
+# Image resize
 
-##CONTENTS OF THIS FILE
+## CONTENTS OF THIS FILE
 
   * Introduction
   * Requirements
@@ -8,7 +8,7 @@
   * Using the module
   * Author
 
-##INTRODUCTION
+## INTRODUCTION
 
 Before downloading and using this module please read the next lines carefully.
 This module has a very specific use case. You should not use it to resize images
@@ -23,29 +23,29 @@ you migrate from some other system and your images have a specific names, so you
 can load them directly in template. "Image resize" will only resize images in a
 specified folder, and it won't modify any table in your database.
 
-##REQUIREMENTS
+## REQUIREMENTS
 
 Minimum PHP 5.5.0
 
-##INSTALLATION
+## INSTALLATION
 
 1. Install module as usual via Drupal UI or Drush.
-2. Go to "Modules" and enable the Image resize module.
+2. Go to "Modules" and enable the "Image resize" module.
 
-##USING THE MODULE
+## USING THE MODULE
 
 1. Go to the module settings 'admin/config/media/image-resize/settings' page
 and set options for resizing you images.
 2. Go to the 'admin/config/media/image-resize' page and start resizing images.
 
-###AUTHOR
+### AUTHOR
 
 Goran Nikolovski  
-Website: (http://www.gorannikolovski.com)  
-Drupal: (https://www.drupal.org/user/3451979)  
+Website: http://gorannikolovski.com  
+Drupal: https://www.drupal.org/user/3451979  
 Email: nikolovski84@gmail.com  
 
 Company: Studio Present, Subotica, Serbia  
-Website: (http://www.studiopresent.com)  
-Drupal: (https://www.drupal.org/studio-present)  
+Website: http://www.studiopresent.com  
+Drupal: https://www.drupal.org/studio-present  
 Email: info@studiopresent.com  
