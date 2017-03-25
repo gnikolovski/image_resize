@@ -59,6 +59,27 @@ function image_resize_admin_form() {
     '#description' => t('Enter internal path to your images directory (e.g. public://images).'),
   );
 
+  $form['backup_images'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Backup images'),
+    '#default_value' => variable_get('backup_images', FALSE),
+    '#description' => t('Check this option if you want to make a backup of original image files.'),
+  );
+
+  $form['backup_dir_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Backup directory path'),
+    '#default_value' => variable_get('backup_dir_path', 'public://backup'),
+    '#size' => 60,
+    '#required' => TRUE,
+    '#description' => t('Enter internal path to your backup directory (e.g. public://backup).'),
+    '#states' => [
+      'visible' => [
+        ':input[name="backup_images"]' => ['checked' => TRUE],
+      ],
+    ],
+  );
+
   $form['image_resize_formats'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Image formats'),
@@ -187,7 +208,7 @@ function image_resize_form_submit($form, &$form_state) {
  */
 function image_resize_get_images_paths() {
   $paths = array();
-  $dir_path = variable_get('image_resize_dir_path');
+  $dir_path = rtrim(variable_get('image_resize_dir_path'), '/');
   $image_formats = variable_get('image_resize_formats');
   $file_size = variable_get('image_resize_file_size');
   $dir_path = drupal_realpath($dir_path);
@@ -230,6 +251,16 @@ function image_resize_get_images_paths() {
  * Resize images.
  */
 function image_resize_image(array $image_paths) {
+  $backup_images = variable_get('backup_images');
+  $backup_dir_path = variable_get('backup_dir_path');
+  if ($backup_images && $backup_dir_path) {
+    $prepared = file_prepare_directory($backup_dir_path, FILE_CREATE_DIRECTORY);
+    if (!$prepared) {
+      drupal_set_message(t('Directory @backup_dir_path cannot be created', array('@backup_dir_path' => $backup_dir_path)), 'error');
+      return;
+    }
+  }
+
   foreach ($image_paths as $image_path) {
     $dimension_type = variable_get('image_resize_type');
     $dimension = variable_get('image_resize_dimension');
@@ -247,10 +278,14 @@ function image_resize_image(array $image_paths) {
     }
 
     $image_ext = pathinfo($image_path, PATHINFO_EXTENSION);
+    $filename = pathinfo($image_path, PATHINFO_BASENAME);
     switch ($image_ext) {
       case 'jpg':
       case 'jpeg':
         try {
+          if ($backup_images && $backup_dir_path) {
+            copy($image_path, rtrim($backup_dir_path, '/') . '/' . $filename);
+          }
           $image = imagecreatefromjpeg($image_path);
           $scaled = imagescale($image, $widht, $height);
           if ($scaled) {
@@ -265,6 +300,9 @@ function image_resize_image(array $image_paths) {
 
       case 'png':
         try {
+          if ($backup_images && $backup_dir_path) {
+            copy($image_path, rtrim($backup_dir_path, '/') . '/' . $filename);
+          }
           $image = imagecreatefrompng($image_path);
           $scaled = imagescale($image, $widht, $height);
           if ($scaled) {
@@ -279,6 +317,9 @@ function image_resize_image(array $image_paths) {
 
       case 'gif':
         try {
+          if ($backup_images && $backup_dir_path) {
+            copy($image_path, rtrim($backup_dir_path, '/') . '/' . $filename);
+          }
           $image = imagecreatefromgif($image_path);
           $scaled = imagescale($image, $widht, $height);
           if ($scaled) {
