@@ -26,7 +26,7 @@ function image_resize_menu() {
   $items = array();
 
   $items['admin/config/media/image-resize/settings'] = array(
-    'title' => 'Image resize settings',
+    'title' => t('Image resize settings'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('image_resize_admin_form'),
     'access arguments' => array('administer image resize module'),
@@ -34,7 +34,7 @@ function image_resize_menu() {
   );
 
   $items['admin/config/media/image-resize'] = array(
-    'title' => 'Image resize',
+    'title' => t('Image resize'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('image_resize_form'),
     'access arguments' => array('access image resize module'),
@@ -229,7 +229,7 @@ function image_resize_get_images_paths() {
 /**
  * Resize images.
  */
-function image_resize_image($image_paths) {
+function image_resize_image(array $image_paths) {
   foreach ($image_paths as $image_path) {
     $dimension_type = variable_get('image_resize_type');
     $dimension = variable_get('image_resize_dimension');
