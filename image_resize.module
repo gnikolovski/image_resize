@@ -11,10 +11,10 @@
 function image_resize_permission() {
   return array(
     'administer image resize module' => array(
-      'title' => t('Administer image resize module'),
+      'title' => t('Administer Image Resize module'),
     ),
     'access image resize module' => array(
-      'title' => t('Access image resize module'),
+      'title' => t('Access Image Resize module'),
     ),
   );
 }
@@ -26,7 +26,7 @@ function image_resize_menu() {
   $items = array();
 
   $items['admin/config/media/image-resize/settings'] = array(
-    'title' => t('Image resize settings'),
+    'title' => t('Image Resize settings'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('image_resize_admin_form'),
     'access arguments' => array('administer image resize module'),
@@ -34,7 +34,8 @@ function image_resize_menu() {
   );
 
   $items['admin/config/media/image-resize'] = array(
-    'title' => t('Image resize'),
+    'title' => t('Image Resize'),
+    'description' => t('Resize images that are not managed by Drupal.'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('image_resize_form'),
     'access arguments' => array('access image resize module'),
@@ -114,7 +115,7 @@ function image_resize_admin_form() {
     '#maxlength' => 5,
     '#required' => TRUE,
     '#element_validate' => array('element_validate_integer_positive'),
-    '#description' => t('Other dimension will be calculated to preserve aspect ratio.'),
+    '#description' => t('Other dimension will be calculated to preserve the aspect ratio.'),
   );
 
   $form['image_resize_quality'] = array(
@@ -256,7 +257,7 @@ function image_resize_image(array $image_paths) {
   if ($backup_images && $backup_dir_path) {
     $prepared = file_prepare_directory($backup_dir_path, FILE_CREATE_DIRECTORY);
     if (!$prepared) {
-      drupal_set_message(t('Directory @backup_dir_path cannot be created', array('@backup_dir_path' => $backup_dir_path)), 'error');
+      drupal_set_message(t('Directory @backup_dir_path cannot be created.', array('@backup_dir_path' => $backup_dir_path)), 'error');
       return;
     }
   }
