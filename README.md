@@ -1,4 +1,4 @@
-# Image resize
+# Image Resize
 
 ## CONTENTS OF THIS FILE
 
@@ -30,13 +30,13 @@ Minimum PHP 5.5.0
 ## INSTALLATION
 
 1. Install module as usual via Drupal UI or Drush.
-2. Go to "Modules" and enable the "Image resize" module.
+2. Go to "Modules" and enable the "Image Resize" module.
 
 ## USING THE MODULE
 
-1. Go to the module settings 'admin/config/media/image-resize/settings' page
+1. Go to the module settings '/admin/config/media/image-resize/settings' page
 and set options for resizing you images.
-2. Go to the 'admin/config/media/image-resize' page and start resizing images.
+2. Go to the '/admin/config/media/image-resize' page and start resizing images.
 
 ### AUTHOR
 

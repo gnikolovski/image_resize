@@ -1,4 +1,4 @@
-name = Image resize
+name = Image Resize
 description = "Resize images that are not managed by Drupal."
 core = 7.x
 package = Media
