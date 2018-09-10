@@ -5,7 +5,7 @@
   * Introduction
   * Requirements
   * Installation
-  * Using the module
+  * Configuration
   * Author
 
 ## INTRODUCTION
@@ -32,7 +32,7 @@ Minimum PHP 5.5.0
 1. Install module as usual via Drupal UI or Drush.
 2. Go to "Modules" and enable the "Image Resize" module.
 
-## USING THE MODULE
+## CONFIGURATION
 
 1. Go to the module settings '/admin/config/media/image-resize/settings' page
 and set options for resizing you images.
@@ -42,7 +42,7 @@ and set options for resizing you images.
 
 Goran Nikolovski  
 Website: http://gorannikolovski.com  
-Drupal: https://www.drupal.org/user/3451979  
+Drupal: https://www.drupal.org/u/gnikolovski  
 Email: nikolovski84@gmail.com  
 
 Company: Studio Present, Subotica, Serbia  
