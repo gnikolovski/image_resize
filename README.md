@@ -1,14 +1,15 @@
-# Image Resize
+CONTENTS OF THIS FILE
+---------------------
 
-## CONTENTS OF THIS FILE
+ * Introduction
+ * Requirements
+ * Installation
+ * Configuration
+ * Maintainers
 
-  * Introduction
-  * Requirements
-  * Installation
-  * Configuration
-  * Author
 
-## INTRODUCTION
+INTRODUCTION
+------------
 
 Before downloading and using this module please read the next lines carefully.
 This module has a very specific use case. You should not use it to resize images
@@ -20,32 +21,45 @@ Use this module if your images are not managed by Drupal. Lets say that for some
 reason you are loading images directly in templates, based on some file path
 pattern, then these images "live" outside of Drupal. This usually happens when
 you migrate from some other system and your images have a specific names, so you
-can load them directly in template. "Image resize" will only resize images in a
+can load them directly in template. "Image resize" will resize only images in a
 specified folder, and it won't modify any table in your database.
 
-## REQUIREMENTS
+ * For a full description of the module, visit the project page:
+   https://www.drupal.org/project/image_resize
 
-Minimum PHP 5.5.0
+ * To submit bug reports and feature suggestions, or to track changes:
+   https://www.drupal.org/project/issues/image_resize
 
-## INSTALLATION
 
-1. Install module as usual via Drupal UI or Drush.
-2. Go to "Modules" and enable the "Image Resize" module.
+REQUIREMENTS
+------------
 
-## CONFIGURATION
+This module requires no modules outside of Drupal core. Just make sure that you
+have at least PHP 5.5.0.
 
-1. Go to the module settings '/admin/config/media/image-resize/settings' page
-and set options for resizing you images.
-2. Go to the '/admin/config/media/image-resize' page and start resizing images.
 
-### AUTHOR
+INSTALLATION
+------------
 
-Goran Nikolovski  
-Website: http://gorannikolovski.com  
-Drupal: https://www.drupal.org/u/gnikolovski  
-Email: nikolovski84@gmail.com  
+ * Install the Image Resize module as you would normally install a contributed
+   Drupal module. Visit https://www.drupal.org/docs/7/extend/installing-modules
+   for further information.
 
-Company: Studio Present, Subotica, Serbia  
-Website: http://www.studiopresent.com  
-Drupal: https://www.drupal.org/studio-present  
-Email: info@studiopresent.com  
+
+CONFIGURATION
+-------------
+
+    1. Go to the module settings '/admin/config/media/image-resize/settings'
+       page and set options for resizing you images.
+    2. Go to the '/admin/config/media/image-resize' page and start resizing
+       images.
+
+
+MAINTAINERS
+-----------
+
+Current maintainers:
+ * Goran Nikolovski (gnikolovski) - https://www.drupal.org/u/gnikolovski
+
+This project has been sponsored by:
+ * Studio Present - https://www.drupal.org/studio-present
